@@ -1,7 +1,9 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
+import { NavBar } from '@/components/ui/tubelight-navbar';
+import { LayoutGrid, HelpCircle, DollarSign } from 'lucide-react';
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -18,86 +20,144 @@ export default function LandingPage() {
   // Custom easing for human-crafted feel
   const easeOut = [0.16, 1, 0.3, 1] as const;
 
+  const navItems = [
+    { name: 'Features', url: '#features', icon: LayoutGrid },
+    { name: 'How it Works', url: '#how', icon: HelpCircle },
+    { name: 'Pricing', url: '#pricing', icon: DollarSign }
+  ];
+
   return (
     <div className="relative bg-[#faf9f6]">
-      {/* Navigation - fixed, clean, with backdrop blur */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#faf9f6]/80 backdrop-blur-md border-b border-[#e8e7e3]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, ease: easeOut }}
-            className="text-xl font-light tracking-tight"
-          >
-            UserLens
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.6, ease: easeOut }}
-            className="flex gap-8 items-center text-sm"
-          >
-            <NavLink href="#features">Features</NavLink>
-            <NavLink href="#how">How it Works</NavLink>
-            <NavLink href="#pricing">Pricing</NavLink>
-            <button className="px-4 py-2 bg-[#1a1a1a] text-white hover:bg-[#2a2a2a] transition-colors">
-              Log In
-            </button>
-          </motion.div>
-        </div>
-      </nav>
+      {/* Navigation - Tubelight Navbar */}
+      <NavBar items={navItems} />
 
-      {/* Hero Section - warm off-white with parallax background */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden pt-20">
-        {/* Parallax background element */}
+      {/* Hero Section - The Testing Arena */}
+      <section ref={heroRef} className="relative min-h-[85vh] flex items-center overflow-hidden pt-20">
+        {/* Dynamic gradient background with depth */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50" />
+        
+        {/* Animated morphing blobs */}
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 bg-gradient-to-br from-[#f5f4f1] to-[#faf9f6] -z-10"
+          className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-20 -right-20 w-96 h-96 bg-gradient-to-br from-blue-400/30 to-indigo-400/30 rounded-full blur-3xl"
+          animate={{
+            x: [0, -50, 0],
+            y: [0, 30, 0],
+            scale: [1.2, 1, 1.2],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-20 grid md:grid-cols-2 gap-12 items-center">
-          {/* Left: Hero content */}
-          <div>
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-12 grid md:grid-cols-12 gap-8 items-center relative z-10">
+          {/* Left: Hero content - 6 columns */}
+          <div className="md:col-span-6 space-y-8">
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: easeOut }}
-              className="text-[clamp(2.5rem,7vw,5rem)] font-light leading-[1.05] tracking-tight text-[#0a0a0a] mb-6"
+              className="text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-tight text-gray-900"
             >
-              Watch <span className="italic font-serif">real people</span> use
-              your product
+              Watch{' '}
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-[#4B086D] to-[#ACC0FE] bg-clip-text text-transparent italic">
+                  real people
+                </span>
+                <motion.svg
+                  className="absolute -bottom-2 left-0 w-full"
+                  height="12"
+                  viewBox="0 0 200 12"
+                  fill="none"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1.5, delay: 0.5 }}
+                >
+                  <motion.path
+                    d="M0 6 Q50 0, 100 6 T200 6"
+                    stroke="url(#gradient)"
+                    strokeWidth="3"
+                    fill="none"
+                  />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#4B086D" />
+                      <stop offset="100%" stopColor="#ACC0FE" />
+                    </linearGradient>
+                  </defs>
+                </motion.svg>
+              </span>{' '}
+              test your product
             </motion.h1>
+            
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8, ease: easeOut }}
-              className="text-lg text-[#4a4a4a] leading-relaxed mb-8 max-w-lg"
+              className="text-xl text-gray-600 leading-relaxed max-w-xl"
             >
-              Get honest, structured feedback from verified testers. No bloat,
-              no complexity—just real insights to improve your UX.
+              Get honest feedback from verified testers.{' '}
+              <span className="text-gray-900 font-medium">Watch them navigate,</span>{' '}
+              hear their thoughts, and{' '}
+              <span className="text-gray-900 font-medium">fix issues before launch.</span>
             </motion.p>
+            
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8, ease: easeOut }}
-              className="flex gap-4"
+              className="flex flex-wrap gap-4"
             >
               <CTAButton primary>Start Testing</CTAButton>
-              <CTAButton>See How It Works</CTAButton>
+              <CTAButton>
+                <span className="flex items-center gap-2">
+                  <span>Watch Demo</span>
+                  <motion.span
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    →
+                  </motion.span>
+                </span>
+              </CTAButton>
+            </motion.div>
+
+            {/* Social proof */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex items-center gap-6 pt-4"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-[#4B086D] to-[#ACC0FE]" />
+                  ))}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">2,847 testers</div>
+                  <div className="text-xs text-gray-500">online now</div>
+                </div>
+              </div>
+              <div className="h-8 w-px bg-gray-300" />
+              <div>
+                <div className="text-sm font-semibold text-gray-900">4.9/5 rating</div>
+                <div className="text-xs text-gray-500">from 1,200+ tests</div>
+              </div>
             </motion.div>
           </div>
 
-          {/* Right: Stats panel */}
-          <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 0.8, ease: easeOut }}
-            className="hidden md:flex flex-col gap-8"
-          >
-            <StatCard number="$4.99" label="per tester" />
-            <StatCard number="24h" label="avg. turnaround" />
-            <StatCard number="98%" label="approval rate" />
-          </motion.div>
+          {/* Right: Interactive Testing Visualization - 6 columns */}
+          <div className="hidden md:flex md:col-span-6 justify-center items-center relative">
+            <TestingVisualization />
+          </div>
         </div>
       </section>
 
@@ -249,6 +309,218 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// Interactive Testing Visualization Component
+function TestingVisualization() {
+  const [activeCursor, setActiveCursor] = useState(0);
+  const [feedbackVisible, setFeedbackVisible] = useState(false);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveCursor(prev => (prev + 1) % 3);
+      setFeedbackVisible(prev => !prev);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const cursors = [
+    { id: 1, color: '#8b5cf6', x: 60, y: 40, name: 'Sarah' },
+    { id: 2, color: '#ec4899', x: 45, y: 60, name: 'Mike' },
+    { id: 3, color: '#3b82f6', x: 70, y: 75, name: 'Alex' },
+  ];
+
+  const feedbacks = [
+    { text: "This button is confusing", emoji: "😕", x: 30, y: 35 },
+    { text: "Love the colors!", emoji: "💜", x: 55, y: 25 },
+    { text: "Easy to navigate", emoji: "👍", x: 40, y: 70 },
+  ];
+
+  return (
+    <div className="relative w-full max-w-md aspect-square">
+      {/* 3D Device Mockup */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
+        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full h-full"
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* Phone Frame */}
+        <motion.div
+          className="relative w-56 h-[450px] mx-auto bg-gray-900 rounded-[3rem] p-3 shadow-2xl"
+          animate={{ rotateY: [-2, 2, -2] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        >
+          {/* Screen */}
+          <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+            {/* Mock UI Content */}
+            <div className="absolute inset-0 p-6 space-y-4">
+              <div className="h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg w-3/4" />
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-full" />
+                <div className="h-4 bg-gray-200 rounded w-5/6" />
+              </div>
+              
+              {/* Interactive Button */}
+              <motion.div
+                className="h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white font-medium shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                animate={{ 
+                  boxShadow: ['0 4px 14px rgba(139, 92, 246, 0.4)', '0 4px 20px rgba(236, 72, 153, 0.6)', '0 4px 14px rgba(139, 92, 246, 0.4)']
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                Get Started
+              </motion.div>
+
+              <div className="grid grid-cols-2 gap-3 mt-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-24 bg-gray-100 rounded-lg" />
+                ))}
+              </div>
+            </div>
+
+            {/* Animated Cursors */}
+            <AnimatePresence>
+              {cursors.map((cursor, i) => (
+                <motion.div
+                  key={cursor.id}
+                  className="absolute pointer-events-none z-20"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{
+                    opacity: activeCursor === i ? 1 : 0.3,
+                    scale: activeCursor === i ? 1 : 0.8,
+                    x: `${cursor.x}%`,
+                    y: `${cursor.y}%`,
+                  }}
+                  transition={{ duration: 0.6 }}
+                >
+                  {/* Cursor SVG */}
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill={cursor.color}>
+                    <path d="M5.5 3L20.5 20L13 17.5L9 23L7 21.5L11 15.5L5.5 3Z" />
+                  </svg>
+                  
+                  {/* Cursor Label */}
+                  <motion.div
+                    className="absolute top-6 left-6 px-2 py-1 rounded bg-white shadow-lg text-xs font-medium whitespace-nowrap"
+                    style={{ borderLeft: `3px solid ${cursor.color}` }}
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: activeCursor === i ? 1 : 0, y: 0 }}
+                  >
+                    {cursor.name}
+                  </motion.div>
+
+                  {/* Click Ripple */}
+                  {activeCursor === i && (
+                    <motion.div
+                      className="absolute w-8 h-8 rounded-full border-2"
+                      style={{ borderColor: cursor.color }}
+                      initial={{ scale: 0, opacity: 1 }}
+                      animate={{ scale: 2, opacity: 0 }}
+                      transition={{ duration: 0.6, repeat: Infinity }}
+                    />
+                  )}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {/* Feedback Bubbles */}
+            <AnimatePresence>
+              {feedbackVisible && feedbacks.map((feedback, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute z-30 pointer-events-none"
+                  style={{ left: `${feedback.x}%`, top: `${feedback.y}%` }}
+                  initial={{ opacity: 0, scale: 0, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                  transition={{ delay: i * 0.2, duration: 0.4 }}
+                >
+                  <div className="bg-white rounded-2xl shadow-xl p-3 max-w-[140px] relative">
+                    <div className="absolute -left-2 top-4 w-3 h-3 bg-white transform rotate-45" />
+                    <div className="flex items-start gap-2">
+                      <span className="text-xl flex-shrink-0">{feedback.emoji}</span>
+                      <p className="text-xs text-gray-700 leading-tight">{feedback.text}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {/* Typing Indicator */}
+            <motion.div
+              className="absolute bottom-4 right-4 bg-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2 z-20"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+            >
+              <span className="text-xs text-gray-600">Typing</span>
+              <div className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1.5 h-1.5 bg-purple-500 rounded-full"
+                    animate={{ y: [-2, 2, -2] }}
+                    transition={{ duration: 0.6, delay: i * 0.1, repeat: Infinity }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Heatmap Dots */}
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-3 h-3 rounded-full bg-red-500/50"
+                style={{
+                  left: `${30 + (i % 3) * 20}%`,
+                  top: `${40 + Math.floor(i / 3) * 15}%`,
+                }}
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [0.3, 0.7, 0.3],
+                }}
+                transition={{
+                  duration: 2,
+                  delay: i * 0.3,
+                  repeat: Infinity,
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Phone notch */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-gray-900 rounded-b-3xl" />
+        </motion.div>
+
+        {/* Floating Reaction Emojis */}
+        {['😍', '🎉', '✨', '👏'].map((emoji, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-4xl"
+            style={{
+              left: `${20 + i * 20}%`,
+              top: `${10 + (i % 2) * 70}%`,
+            }}
+            animate={{
+              y: [-10, 10, -10],
+              rotate: [-5, 5, -5],
+              opacity: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.2,
+            }}
+          >
+            {emoji}
+          </motion.div>
+        ))}
+      </motion.div>
     </div>
   );
 }
