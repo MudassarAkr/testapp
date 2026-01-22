@@ -3,10 +3,12 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { NavBar } from '@/components/ui/tubelight-navbar';
-import { LayoutGrid, HelpCircle, DollarSign } from 'lucide-react';
+import { LayoutGrid, HelpCircle, DollarSign, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const [particles, setParticles] = useState<Array<{ left: string; top: string; delay: number; duration: number }>>([]);
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -19,6 +21,17 @@ export default function LandingPage() {
 
   // Custom easing for human-crafted feel
   const easeOut = [0.16, 1, 0.3, 1] as const;
+
+  // Generate particle positions only on client side to avoid hydration errors
+  useEffect(() => {
+    const generatedParticles = [...Array(15)].map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      delay: Math.random() * 5,
+      duration: 3 + Math.random() * 2,
+    }));
+    setParticles(generatedParticles);
+  }, []);
 
   const navItems = [
     { name: 'Features', url: '#features', icon: LayoutGrid },
@@ -127,31 +140,6 @@ export default function LandingPage() {
                 </span>
               </CTAButton>
             </motion.div>
-
-            {/* Social proof */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center gap-6 pt-4"
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-[#4B086D] to-[#ACC0FE]" />
-                  ))}
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">2,847 testers</div>
-                  <div className="text-xs text-gray-500">online now</div>
-                </div>
-              </div>
-              <div className="h-8 w-px bg-gray-300" />
-              <div>
-                <div className="text-sm font-semibold text-gray-900">4.9/5 rating</div>
-                <div className="text-xs text-gray-500">from 1,200+ tests</div>
-              </div>
-            </motion.div>
           </div>
 
           {/* Right: Interactive Testing Visualization - 6 columns */}
@@ -161,117 +149,407 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section - cool gray surface with clear separation */}
-      <section id="features" className="relative bg-[#f4f5f7] py-24">
+      {/* Features Section - Overlapping Cards Layout */}
+      <section id="features" className="relative bg-gradient-to-br from-[#faf9f6] via-[#f4f5f7] to-[#faf9f6] py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <SectionHeader
-            subtitle="Why UserLens"
-            title="Built for teams who value real feedback"
-          />
-
-          <div className="grid md:grid-cols-3 gap-8 mt-16">
-            <FeatureCard
-              delay={0.1}
-              icon="✓"
-              title="Verified Testers"
-              description="Every tester is email and phone verified. No bots, no fake accounts—just real humans."
-            />
-            <FeatureCard
-              delay={0.2}
-              icon="⚡"
-              title="Fast Turnaround"
-              description="Get your first submissions within 24 hours. Review and approve at your own pace."
-            />
-            <FeatureCard
-              delay={0.3}
-              icon="🔒"
-              title="Escrow Payments"
-              description="Pay upfront, funds held securely. Testers only get paid after you approve their work."
-            />
-            <FeatureCard
-              delay={0.4}
-              icon="📝"
-              title="Structured Feedback"
-              description="Define custom tasks and questions. Get answers that are actionable and specific."
-            />
-            <FeatureCard
-              delay={0.5}
-              icon="💰"
-              title="Fair Pricing"
-              description="Transparent per-tester pricing. No hidden fees, no subscriptions, no surprises."
-            />
-            <FeatureCard
-              delay={0.6}
-              icon="🎯"
-              title="Target Demographics"
-              description="Filter testers by country, device type, and experience level for relevant feedback."
-            />
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-sm text-[#999] tracking-widest uppercase mb-3"
+            >
+              Why UserLens
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1, duration: 0.6 }}
+              className="text-4xl md:text-5xl font-light leading-tight text-[#0a0a0a] mb-4"
+            >
+              Built for teams who value real feedback
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="text-[#6a6a6a] text-lg max-w-2xl mx-auto"
+            >
+              Experience the power of authentic user testing with our comprehensive platform
+            </motion.p>
           </div>
+
+          {/* Overlapping Cards Container */}
+          <motion.div
+            className="flex flex-wrap justify-center items-end gap-4 md:gap-0 md:-space-x-12 lg:-space-x-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.15,
+                },
+              },
+            }}
+          >
+            <FeatureCard
+              index={0}
+              number="01"
+              title="Verified Testers"
+              description="Every tester is verified. No bots, just real humans."
+              bgColor="bg-[#F9D4D5]"
+            />
+            <FeatureCard
+              index={1}
+              number="02"
+              title="Fast Turnaround"
+              description="Get submissions within 24 hours. Review at your pace."
+              bgColor="bg-[#D1E5E6]"
+            />
+            <FeatureCard
+              index={2}
+              number="03"
+              title="Escrow Payments"
+              description="Funds held securely. Pay only after approval."
+              bgColor="bg-[#EAE1DA]"
+            />
+            <FeatureCard
+              index={3}
+              number="04"
+              title="Target Demographics"
+              description="Filter by country, device, and experience level."
+              bgColor="bg-[#FDEACC]"
+            />
+            <FeatureCard
+              index={4}
+              number="05"
+              title="Structured Feedback"
+              description="Define custom tasks. Get actionable answers."
+              bgColor="bg-[#E8D4F2]"
+            />
+            <FeatureCard
+              index={5}
+              number="06"
+              title="Fair Pricing"
+              description="Transparent pricing. No hidden fees or surprises."
+              bgColor="bg-[#D4E8D4]"
+            />
+          </motion.div>
         </div>
       </section>
 
       {/* Testimonial Section - dark contrast break */}
-      <section className="relative bg-[#1a1a1a] py-24 text-white">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <section className="relative bg-[#1a1a1a] py-24 text-white overflow-hidden">
+        {/* Animated gradient mesh background - optimized */}
+        <div className="absolute inset-0 opacity-30 will-change-transform">
+          <motion.div
+            className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-[#4B086D] to-[#6B28A0] rounded-full blur-3xl"
+            animate={{
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            style={{ willChange: "transform" }}
+          />
+          <motion.div
+            className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#ACC0FE] to-[#8CA0E0] rounded-full blur-3xl"
+            animate={{
+              x: [0, -80, 0],
+              y: [0, 60, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            style={{ willChange: "transform" }}
+          />
+        </div>
+
+        {/* Floating particles - reduced count */}
+        {particles.length > 0 && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {particles.slice(0, 8).map((particle, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-[#ACC0FE] rounded-full"
+                style={{
+                  left: particle.left,
+                  top: particle.top,
+                  willChange: "transform, opacity",
+                }}
+                animate={{
+                  y: [-20, -100],
+                  opacity: [0, 0.6, 0],
+                }}
+                transition={{
+                  duration: particle.duration,
+                  repeat: Infinity,
+                  delay: particle.delay,
+                  ease: "linear",
+                }}
+              />
+            ))}
+          </div>
+        )}
+        
+        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            className="grid md:grid-cols-2 gap-12 items-center"
           >
-            <p className="text-4xl md:text-5xl font-light leading-snug max-w-3xl mx-auto">
-              "UserLens helped us catch 12 critical UX issues before launch.
-              Best $50 we've ever spent."
-            </p>
-            <div className="mt-8 text-sm text-[#999]">
-              — Sarah Chen, Product Designer at Acme Inc.
-            </div>
+            {/* Left side - Image with 3D tilt effect */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+              style={{ perspective: "1000px" }}
+            >
+              <motion.div
+                className="relative w-full aspect-[4/5] max-w-md mx-auto"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                style={{ willChange: "transform" }}
+              >
+                {/* Static gradient border - no animation for performance */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#4B086D] via-[#ACC0FE] to-[#4B086D] rounded-3xl opacity-75 blur-lg" />
+                
+                {/* Simplified shadows */}
+                <div className="absolute -inset-4 bg-gradient-to-br from-[#4B086D]/30 to-[#ACC0FE]/30 rounded-3xl blur-xl" />
+                
+                {/* 3D Image container with hover tilt */}
+                <motion.div
+                  className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl"
+                  whileHover={{
+                    rotateY: 5,
+                    rotateX: -5,
+                  }}
+                  transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                  style={{ transformStyle: "preserve-3d", willChange: "transform" }}
+                >
+                  <Image
+                    src="/person.png"
+                    alt="Happy UserLens tester"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                  
+                  {/* Enhanced gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a]/60 via-transparent to-[#4B086D]/10" />
+                  
+                  {/* Shine effect on hover */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.6 }}
+                  />
+                </motion.div>
+
+                {/* Enhanced floating badge with glow */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                  whileHover={{ scale: 1.05, rotate: -2 }}
+                  className="absolute -bottom-6 -right-6 bg-white text-gray-900 px-6 py-4 rounded-2xl shadow-2xl"
+                  style={{ 
+                    boxShadow: "0 20px 40px rgba(75, 8, 109, 0.3), 0 0 30px rgba(172, 192, 254, 0.2)",
+                    willChange: "transform"
+                  }}
+                >
+                  {/* Static glow instead of animated */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#4B086D] to-[#ACC0FE] rounded-2xl opacity-25 blur-lg" />
+                  
+                  <div className="flex items-center gap-3 relative">
+                    <div className="text-3xl">⭐</div>
+                    <div>
+                      <div className="text-2xl font-bold bg-gradient-to-r from-[#4B086D] to-[#6B28A0] bg-clip-text text-transparent">
+                        4.9/5
+                      </div>
+                      <div className="text-xs text-gray-500">1,200+ reviews</div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+
+            {/* Right side - Testimonial with glassmorphic card */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              {/* Glassmorphic card */}
+              <motion.div
+                className="relative p-8 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
+                  willChange: "transform"
+                }}
+              >
+                <div className="space-y-6 relative">
+                  {/* Enhanced quote icon */}
+                  <div className="text-7xl bg-gradient-to-br from-[#ACC0FE] to-[#4B086D] bg-clip-text text-transparent opacity-70">
+                    "
+                  </div>
+                  
+                  <p className="text-3xl md:text-4xl font-light leading-snug">
+                    UserLens helped us catch 12 critical UX issues before launch.
+                    <span className="bg-gradient-to-r from-[#ACC0FE] to-[#8CA0E0] bg-clip-text text-transparent font-medium">
+                      {" "}Best money we've ever spent.
+                    </span>
+                  </p>
+                  
+                  <div className="flex items-center gap-4 pt-6">
+                    <motion.div
+                      className="w-14 h-14 rounded-full bg-gradient-to-br from-[#4B086D] to-[#ACC0FE] p-0.5"
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      style={{ willChange: "transform" }}
+                    >
+                      <div className="w-full h-full rounded-full bg-[#1a1a1a] flex items-center justify-center text-2xl">
+                        👩‍💻
+                      </div>
+                    </motion.div>
+                    <div>
+                      <div className="font-semibold text-lg">Talia Mendez</div>
+                      <div className="text-sm text-gray-400">Product Designer</div>
+                    </div>
+                  </div>
+
+                  {/* Enhanced trust indicators */}
+                  <div className="flex items-center gap-6 pt-6 border-t border-white/10">
+                    {[
+                      { value: "2,847", label: "Active Testers" },
+                      { value: "24h", label: "Avg Response" },
+                      { value: "98%", label: "Satisfaction" },
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.8 + i * 0.1 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        className="flex-1"
+                        style={{ willChange: "transform" }}
+                      >
+                        <div className="text-2xl font-bold bg-gradient-to-r from-[#ACC0FE] to-[#8CA0E0] bg-clip-text text-transparent">
+                          {item.value}
+                        </div>
+                        <div className="text-xs text-gray-400 uppercase tracking-wider mt-1">
+                          {item.label}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Process Section - stepped timeline with reveals */}
-      <section id="how" className="relative bg-white py-24">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <SectionHeader
-            subtitle="How It Works"
-            title="From setup to insights in three steps"
-          />
+      {/* Process Section - Inspired horizontal steps design */}
+      <section id="how" className="relative bg-gradient-to-br from-[#faf9f6] via-[#f5f3ff] to-[#faf9f6] py-24 overflow-hidden">
+        {/* Decorative background blobs */}
+        <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#4B086D] opacity-10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#ACC0FE] opacity-20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-gradient-to-br from-[#4B086D]/5 to-[#ACC0FE]/5 rounded-full blur-2xl" />
 
-          <div className="mt-16 space-y-12">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <p className="text-sm uppercase tracking-wider text-[#4B086D] font-semibold mb-4">
+              How It Works
+            </p>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Three Simple Steps To Better UX
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Just follow these three quick & easy steps and you'll have actionable insights from real users
+            </p>
+          </motion.div>
+
+          {/* Steps Grid */}
+          <div className="grid md:grid-cols-3 gap-8 md:gap-6 mt-16">
             <ProcessStep
-              number="01"
+              number="1"
+              stepLabel="Step 01"
               title="Create Your Test"
-              description="Define your website URL, tasks for testers to complete, and feedback questions. Takes less than 5 minutes."
+              description="Just type in your website address and we'll give you a small snippet of code to add to any or all of your webpages"
               delay={0.1}
             />
             <ProcessStep
-              number="02"
+              number="2"
+              stepLabel="Step 02"
               title="Pay & Publish"
-              description="Choose how many testers you need, pay upfront via Stripe. Your test goes live immediately to verified testers."
+              description="Use a shortcode where you want your element to appear and we'll auto-magically show different versions until there is a clear winner"
               delay={0.2}
             />
             <ProcessStep
-              number="03"
+              number="3"
+              stepLabel="Step 03"
               title="Review & Approve"
-              description="Testers complete your test and submit feedback. Review their responses, approve quality submissions, and get actionable insights."
+              description="Use a shortcode where you want your element to appear and we'll auto-magically show different versions until there is a clear winner"
               delay={0.3}
             />
           </div>
         </div>
       </section>
 
-      {/* CTA Section - elevated white surface */}
-      <section className="relative py-32 bg-gradient-to-b from-[#f4f5f7] to-[#faf9f6]">
+      {/* CTA Section - Black and white with curved wave layers */}
+      <section className="relative py-24 md:py-32 overflow-hidden bg-gray-50">
+        {/* Curved black wave layers */}
+        <div className="absolute inset-0 overflow-hidden">
+          <svg
+            className="absolute top-0 right-0 w-full h-full"
+            viewBox="0 0 1440 800"
+            preserveAspectRatio="xMidYMid slice"
+            fill="none"
+          >
+            <path
+              d="M0 0C240 200 480 300 720 250C960 200 1200 100 1440 200V800H0V0Z"
+              fill="rgba(0, 0, 0, 0.08)"
+            />
+            <path
+              d="M0 100C240 250 480 350 720 300C960 250 1200 150 1440 250V800H0V100Z"
+              fill="rgba(0, 0, 0, 0.05)"
+            />
+            <path
+              d="M0 200C240 300 480 400 720 350C960 300 1200 200 1440 300V800H0V200Z"
+              fill="rgba(0, 0, 0, 0.03)"
+            />
+          </svg>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: easeOut }}
-          className="max-w-3xl mx-auto px-6 text-center"
+          className="relative max-w-3xl mx-auto px-6 text-center z-10"
         >
-          <h2 className="text-5xl md:text-6xl font-light leading-tight mb-6">
+          <h2 className="text-5xl md:text-6xl font-light leading-tight mb-6 text-black">
             Ready to see through
             <br />
             <span className="italic font-serif">their eyes?</span>
@@ -279,9 +557,14 @@ export default function LandingPage() {
           <p className="text-lg text-[#4a4a4a] mb-8">
             Start your first test today. No credit card required.
           </p>
-          <CTAButton primary large>
-            Get Started for Free
-          </CTAButton>
+          <button className="group relative overflow-hidden inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#4B086D] text-white hover:bg-[#4B086D]/90 h-11 px-8">
+            <span className="mr-8 transition-opacity duration-500 group-hover:opacity-0">
+              Get Started for Free
+            </span>
+            <i className="absolute right-1 top-1 bottom-1 rounded-sm z-10 grid w-1/4 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+              <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
+            </i>
+          </button>
         </motion.div>
       </section>
 
@@ -602,14 +885,97 @@ function SectionHeader({ subtitle, title }: { subtitle: string; title: string })
   );
 }
 
-// Feature card with mask wipe reveal
+// Feature card with overlapping layout inspired by team showcase
 function FeatureCard({
-  icon,
+  index,
+  number,
+  title,
+  description,
+  bgColor,
+}: {
+  index: number;
+  number: string;
+  title: string;
+  description: string;
+  bgColor: string;
+}) {
+  const cardVariants = {
+    hidden: { y: 60, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      className="w-full max-w-[280px] md:max-w-[320px] lg:max-w-[200px]"
+      variants={cardVariants}
+      whileHover={{ 
+        y: -20, 
+        scale: 1.05, 
+        zIndex: 50,
+        transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+      }}
+      style={{ zIndex: 6 - index }}
+    >
+      <div
+        className={`relative pt-12 pb-8 px-6 rounded-t-[60%] h-[380px] md:h-[420px] lg:h-[400px] flex flex-col items-center text-center shadow-xl transition-shadow hover:shadow-2xl ${
+          bgColor
+        }`}
+      >
+        {/* Large number at top */}
+        <motion.div
+          className="text-7xl md:text-8xl font-bold mb-4"
+          style={{
+            WebkitTextStroke: '2px rgba(0,0,0,0.8)',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 900,
+          }}
+          whileHover={{ scale: 1.1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {number}
+        </motion.div>
+
+        {/* Title and description at bottom */}
+        <div className="mt-auto space-y-3">
+          <h3 className="font-bold text-lg md:text-xl text-[#0a0a0a] tracking-tight">
+            {title}
+          </h3>
+          <p className="text-sm md:text-base text-[#4a4a4a] leading-relaxed">
+            {description}
+          </p>
+        </div>
+
+        {/* Decorative dot pattern */}
+        <div className="absolute top-4 right-4 w-12 h-12 opacity-10">
+          <div className="grid grid-cols-3 gap-1">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className="w-1.5 h-1.5 bg-black rounded-full" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// Process step with horizontal card design inspired by the image
+function ProcessStep({
+  number,
+  stepLabel,
   title,
   description,
   delay,
 }: {
-  icon: string;
+  number: string;
+  stepLabel: string;
   title: string;
   description: string;
   delay: number;
@@ -622,46 +988,71 @@ function FeatureCard({
       ref={ref}
       initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="group p-6 bg-white border border-[#e8e7e3] hover:border-[#1a1a1a] transition-all duration-300"
-    >
-      <div className="text-3xl mb-4">{icon}</div>
-      <h3 className="text-xl font-medium mb-3 text-[#0a0a0a]">{title}</h3>
-      <p className="text-[#4a4a4a] leading-relaxed text-sm">{description}</p>
-    </motion.div>
-  );
-}
-
-// Process step with directional slide-in
-function ProcessStep({
-  number,
-  title,
-  description,
-  delay,
-}: {
-  number: string;
-  title: string;
-  description: string;
-  delay: number;
-}) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -40 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
       transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="flex gap-8 items-start"
+      className="relative flex flex-col items-center text-center group"
     >
-      <div className="flex-shrink-0 w-20 h-20 bg-[#f4f5f7] flex items-center justify-center text-2xl font-light text-[#1a1a1a]">
-        {number}
+      {/* Number with circular decoration */}
+      <div className="relative mb-6">
+        {/* White background circle */}
+        <div className="absolute inset-0 w-40 h-40 bg-white rounded-full shadow-lg -translate-x-1/2 left-1/2 top-1/2 -translate-y-1/2" />
+        
+        {/* Partial colored circle (arc) */}
+        <svg className="absolute w-44 h-44 -translate-x-1/2 left-1/2 top-1/2 -translate-y-1/2 -rotate-90" viewBox="0 0 180 180">
+          <motion.circle
+            cx="90"
+            cy="90"
+            r="85"
+            fill="none"
+            stroke={number === "1" ? "#ef4444" : number === "2" ? "#ef4444" : "#ef4444"}
+            strokeWidth="6"
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={isInView ? { pathLength: 0.7 } : {}}
+            transition={{ duration: 1.5, delay: delay + 0.3, ease: "easeOut" }}
+            style={{
+              strokeDasharray: "534",
+            }}
+          />
+        </svg>
+
+        {/* Large number */}
+        <div className="relative">
+          <span className="text-[140px] font-bold leading-none" style={{
+            WebkitTextStroke: '3px #1a1a1a',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 900,
+          }}>
+            {number}
+          </span>
+        </div>
       </div>
-      <div className="flex-1">
-        <h3 className="text-2xl font-light mb-3 text-[#0a0a0a]">{title}</h3>
-        <p className="text-[#4a4a4a] leading-relaxed max-w-2xl">{description}</p>
-      </div>
+
+      {/* Title */}
+      <motion.h3
+        className="text-xl md:text-2xl font-bold text-[#ef4444] mb-3"
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : {}}
+        transition={{ delay: delay + 0.8 }}
+      >
+        {title}
+      </motion.h3>
+
+      {/* Description */}
+      <motion.p
+        className="text-gray-600 leading-relaxed text-sm md:text-base max-w-xs mx-auto"
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : {}}
+        transition={{ delay: delay + 1 }}
+      >
+        {description}
+      </motion.p>
+
+      {/* Hover effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-[#4B086D]/5 to-[#ACC0FE]/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity -z-10"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.3 }}
+      />
     </motion.div>
   );
 }
