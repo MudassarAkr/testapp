@@ -3,12 +3,13 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { NavBar } from '@/components/ui/tubelight-navbar';
-import { LayoutGrid, HelpCircle, DollarSign, ChevronRight } from 'lucide-react';
+import { LayoutGrid, HelpCircle, Mail, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [particles, setParticles] = useState<Array<{ left: string; top: string; delay: number; duration: number }>>([]);
+  const [activeSection, setActiveSection] = useState('Features');
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -33,16 +34,37 @@ export default function LandingPage() {
     setParticles(generatedParticles);
   }, []);
 
+  // Track active section based on scroll position
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            if (id === 'features') setActiveSection('Features');
+            else if (id === 'how') setActiveSection('How It Works');
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    const sections = document.querySelectorAll('#features, #how');
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
+
   const navItems = [
     { name: 'Features', url: '#features', icon: LayoutGrid },
-    { name: 'How it Works', url: '#how', icon: HelpCircle },
-    { name: 'Pricing', url: '#pricing', icon: DollarSign }
+    { name: 'How It Works', url: '#how', icon: HelpCircle },
+    { name: 'Contact Us', url: '/contact', icon: Mail }
   ];
 
   return (
     <div className="relative bg-[#faf9f6]">
       {/* Navigation - Tubelight Navbar */}
-      <NavBar items={navItems} />
+      <NavBar items={navItems} activeTab={activeSection} />
 
       {/* Hero Section - The Testing Arena */}
       <section ref={heroRef} className="relative min-h-[85vh] flex items-center overflow-hidden pt-20">
@@ -128,17 +150,7 @@ export default function LandingPage() {
               className="flex flex-wrap gap-4"
             >
               <CTAButton primary>Start Testing</CTAButton>
-              <CTAButton>
-                <span className="flex items-center gap-2">
-                  <span>Watch Demo</span>
-                  <motion.span
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    →
-                  </motion.span>
-                </span>
-              </CTAButton>
+              <CTAButton>Become a Tester</CTAButton>
             </motion.div>
           </div>
 
@@ -246,54 +258,13 @@ export default function LandingPage() {
 
       {/* Testimonial Section - dark contrast break */}
       <section className="relative bg-[#1a1a1a] py-24 text-white overflow-hidden">
-        {/* Animated gradient mesh background - optimized */}
-        <div className="absolute inset-0 opacity-30 will-change-transform">
-          <motion.div
-            className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-[#4B086D] to-[#6B28A0] rounded-full blur-3xl"
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            style={{ willChange: "transform" }}
-          />
-          <motion.div
-            className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#ACC0FE] to-[#8CA0E0] rounded-full blur-3xl"
-            animate={{
-              x: [0, -80, 0],
-              y: [0, 60, 0],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            style={{ willChange: "transform" }}
-          />
+        {/* Static gradient mesh background - optimized for performance */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-to-br from-[#4B086D] to-[#6B28A0] rounded-full blur-3xl" />
+          <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#ACC0FE] to-[#8CA0E0] rounded-full blur-3xl" />
         </div>
 
-        {/* Floating particles - reduced count */}
-        {particles.length > 0 && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {particles.slice(0, 8).map((particle, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-[#ACC0FE] rounded-full"
-                style={{
-                  left: particle.left,
-                  top: particle.top,
-                  willChange: "transform, opacity",
-                }}
-                animate={{
-                  y: [-20, -100],
-                  opacity: [0, 0.6, 0],
-                }}
-                transition={{
-                  duration: particle.duration,
-                  repeat: Infinity,
-                  delay: particle.delay,
-                  ease: "linear",
-                }}
-              />
-            ))}
-          </div>
-        )}
+        {/* Removed floating particles for better performance */}
         
         <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
           <motion.div
@@ -303,72 +274,49 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="grid md:grid-cols-2 gap-12 items-center"
           >
-            {/* Left side - Image with 3D tilt effect */}
+            {/* Left side - Image with optimized animations */}
             <motion.div
-              initial={{ opacity: 0, x: -40 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="relative"
-              style={{ perspective: "1000px" }}
             >
-              <motion.div
-                className="relative w-full aspect-[4/5] max-w-md mx-auto"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                style={{ willChange: "transform" }}
-              >
-                {/* Static gradient border - no animation for performance */}
+              <div className="relative w-full aspect-[4/5] max-w-md mx-auto">
+                {/* Static gradient border */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#4B086D] via-[#ACC0FE] to-[#4B086D] rounded-3xl opacity-75 blur-lg" />
                 
-                {/* Simplified shadows */}
-                <div className="absolute -inset-4 bg-gradient-to-br from-[#4B086D]/30 to-[#ACC0FE]/30 rounded-3xl blur-xl" />
+                {/* Single shadow layer */}
+                <div className="absolute -inset-2 bg-gradient-to-br from-[#4B086D]/20 to-[#ACC0FE]/20 rounded-3xl blur-lg" />
                 
-                {/* 3D Image container with hover tilt */}
-                <motion.div
-                  className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl"
-                  whileHover={{
-                    rotateY: 5,
-                    rotateX: -5,
-                  }}
-                  transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                  style={{ transformStyle: "preserve-3d", willChange: "transform" }}
-                >
+                {/* Image container - removed 3D effects */}
+                <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
                   <Image
                     src="/person.png"
                     alt="Happy UserLens tester"
                     fill
                     className="object-cover"
                     priority
+                    quality={90}
                   />
                   
-                  {/* Enhanced gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a]/60 via-transparent to-[#4B086D]/10" />
-                  
-                  {/* Shine effect on hover */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: "100%" }}
-                    transition={{ duration: 0.6 }}
-                  />
-                </motion.div>
+                  {/* Simple gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a]/50 via-transparent to-transparent" />
+                </div>
 
-                {/* Enhanced floating badge with glow */}
+                {/* Floating badge with simple animation */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                  whileHover={{ scale: 1.05, rotate: -2 }}
+                  transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
                   className="absolute -bottom-6 -right-6 bg-white text-gray-900 px-6 py-4 rounded-2xl shadow-2xl"
                   style={{ 
-                    boxShadow: "0 20px 40px rgba(75, 8, 109, 0.3), 0 0 30px rgba(172, 192, 254, 0.2)",
-                    willChange: "transform"
+                    boxShadow: "0 20px 40px rgba(75, 8, 109, 0.3)"
                   }}
                 >
-                  {/* Static glow instead of animated */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-[#4B086D] to-[#ACC0FE] rounded-2xl opacity-25 blur-lg" />
+                  {/* Static glow */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#4B086D] to-[#ACC0FE] rounded-2xl opacity-20 blur-md" />
                   
                   <div className="flex items-center gap-3 relative">
                     <div className="text-3xl">⭐</div>
@@ -380,24 +328,21 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </motion.div>
-              </motion.div>
+              </div>
             </motion.div>
 
             {/* Right side - Testimonial with glassmorphic card */}
             <motion.div
-              initial={{ opacity: 0, x: 40 }}
+              initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
             >
               {/* Glassmorphic card */}
-              <motion.div
+              <div
                 className="relative p-8 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
-                whileHover={{ scale: 1.02, y: -5 }}
-                transition={{ type: "spring", stiffness: 200, damping: 25 }}
                 style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-                  willChange: "transform"
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)"
                 }}
               >
                 <div className="space-y-6 relative">
@@ -430,7 +375,7 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  {/* Enhanced trust indicators */}
+                  {/* Trust indicators */}
                   <div className="flex items-center gap-6 pt-6 border-t border-white/10">
                     {[
                       { value: "2,847", label: "Active Testers" },
@@ -439,13 +384,11 @@ export default function LandingPage() {
                     ].map((item, i) => (
                       <motion.div
                         key={i}
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0.8 + i * 0.1 }}
-                        whileHover={{ scale: 1.05, y: -2 }}
+                        transition={{ delay: 0.4 + i * 0.1, ease: "easeOut" }}
                         className="flex-1"
-                        style={{ willChange: "transform" }}
                       >
                         <div className="text-2xl font-bold bg-gradient-to-r from-[#ACC0FE] to-[#8CA0E0] bg-clip-text text-transparent">
                           {item.value}
@@ -457,7 +400,7 @@ export default function LandingPage() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         </div>
@@ -568,26 +511,89 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* Footer - clean baseline alignment */}
-      <footer className="relative bg-[#faf9f6] border-t border-[#e8e7e3] py-12">
+      {/* Footer - Enhanced design */}
+      <footer className="relative bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] border-t border-gray-800 py-16">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-            <div>
-              <div className="text-xl font-light mb-2">UserLens</div>
-              <div className="text-sm text-[#6a6a6a]">
-                © 2026 All rights reserved
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            {/* Brand Section */}
+            <div className="md:col-span-2">
+              <div className="text-2xl font-bold bg-gradient-to-r from-[#4B086D] to-[#ACC0FE] bg-clip-text text-transparent mb-4">
+                UserLens
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed max-w-md">
+                Get honest feedback from verified testers. Watch them navigate, hear their thoughts, and fix issues before launch.
+              </p>
+              {/* Social Media */}
+              <div className="flex gap-4 mt-6">
+                <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-[#4B086D] hover:text-white transition-all">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-[#4B086D] hover:text-white transition-all">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+                    <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+                  </svg>
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-[#4B086D] hover:text-white transition-all">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/>
+                    <path d="M12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
               </div>
             </div>
-            <div className="flex gap-8 text-sm text-[#6a6a6a]">
-              <a href="#" className="hover:text-[#1a1a1a] transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="hover:text-[#1a1a1a] transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="hover:text-[#1a1a1a] transition-colors">
-                Contact Us
-              </a>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="#features" className="text-gray-400 hover:text-[#ACC0FE] transition-colors text-sm">
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a href="#how" className="text-gray-400 hover:text-[#ACC0FE] transition-colors text-sm">
+                    How It Works
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact" className="text-gray-400 hover:text-[#ACC0FE] transition-colors text-sm">
+                    Contact Us
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="/privacy" className="text-gray-400 hover:text-[#ACC0FE] transition-colors text-sm">
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a href="/terms" className="text-gray-400 hover:text-[#ACC0FE] transition-colors text-sm">
+                    Terms of Service
+                  </a>
+                </li>
+                <li>
+                  <a href="/cookie-policy" className="text-gray-400 hover:text-[#ACC0FE] transition-colors text-sm">
+                    Cookie Policy
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-gray-800">
+            <div className="text-sm text-gray-400 text-center">
+              © 2026 UserLens. All rights reserved.
             </div>
           </div>
         </div>
